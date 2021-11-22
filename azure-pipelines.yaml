@@ -5,8 +5,8 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - projectName: 'SourdoughBakery'
-  - projectPath: 'SourdoughBakery.Web/SourdoughBakery.Web.csproj'
+  projectName: 'SourdoughBakery'
+  projectPath: 'SourdoughBakery.Web/SourdoughBakery.Web.csproj'
 
 stages: 
 - stage: 'dotnetBuild'
