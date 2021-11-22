@@ -19,8 +19,6 @@ stages:
       inputs:
         command: restore
         projects: ${{variables.projectPath}}
-        feedsToUse: config
-        nugetConfigPath: ./nuget.config
 
     - task: DotNetCoreCLI@2
       displayName: 'Build ${{variables.projectName}}'
