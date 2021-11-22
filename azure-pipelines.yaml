@@ -41,7 +41,7 @@ stages:
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifact: drop'
 
-- stage: 'dotnetBuild'
+- stage: 'DeployToDev'
   displayName: 'Build the Project'
   jobs: 
   - deployment: Deploy
