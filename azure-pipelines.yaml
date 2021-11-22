@@ -1,0 +1,62 @@
+trigger:
+  - none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - projectName: 'SourdoughBakery'
+  - projectPath: 'SourdoughBakery.Web/SourdoughBakery.Web.csproj'
+
+stages: 
+- stage: 'dotnetBuild'
+  displayName: 'Build the Project'
+  jobs: 
+  - job: RestoreAndBuild
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore ${{variables.projectName}} Project'
+      inputs:
+        command: restore
+        projects: ${{variables.projectPath}}
+        feedsToUse: config
+        nugetConfigPath: ./nuget.config
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build ${{variables.projectName}}'
+      inputs:
+        command: build
+        arguments: '--no-restore --configuration $(buildConfiguration)'
+        projects: ${{variables.projectPath}}
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish the ${{variables.projectName}} Project zip'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: ${{variables.projectPath}}
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        zipAfterPublish: True
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
+
+- stage: 'dotnetBuild'
+  displayName: 'Build the Project'
+  jobs: 
+  - deployment: Deploy
+    environment: DEV
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure Web App Deploy'
+            inputs:
+              azureSubscription: 'sourdoughbakery-web-dev' 
+              appType: webApp
+              appName: 'app-sourdoughbakery-ado-ne-02'
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              deploymentMethod: zipDeploy
