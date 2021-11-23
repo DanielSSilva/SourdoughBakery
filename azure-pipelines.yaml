@@ -58,7 +58,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy'
             inputs:
-              azureSubscription: 'sourdoughbakery-web-dev' 
+              azureSubscription: 'sourdoughbakery-web-azdevops-dev' 
               appType: webApp
               appName: 'app-sourdoughbakery-ado-ne-02'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
