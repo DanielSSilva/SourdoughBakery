@@ -47,8 +47,9 @@ stages:
       displayName: 'Publish Artifact: drop'
 
 - stage: 'DeployToDev'
+  displayName: 'Deploy the Project to DEV'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-  displayName: 'Deploy the Project'
+  dependsOn: 'dotnetBuild'
   jobs: 
   - deployment: Deploy
     environment: DEV
@@ -63,6 +64,28 @@ stages:
             inputs:
               azureSubscription: 'sourdoughbakery-web-azdevops-dev' 
               appType: webApp
-              appName: 'app-sourdoughbakery-ado-ne-02'
+              appName: 'app-sourdoughbakery-azdevops-dev-ne-01'
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              deploymentMethod: zipDeploy
+
+- stage: 'DeployToPRD'
+  displayName: 'Deploy the Project to PRD'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  dependsOn: 'DeployToDev'
+  jobs: 
+  - deployment: Deploy
+    environment: PRD
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure Web App Deploy'
+            inputs:
+              azureSubscription: 'sourdoughbakery-web-azdevops-prd' 
+              appType: webApp
+              appName: 'app-sourdoughbakery-ado-prd-ne-01'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
               deploymentMethod: zipDeploy
