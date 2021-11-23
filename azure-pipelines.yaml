@@ -47,7 +47,8 @@ stages:
       displayName: 'Publish Artifact: drop'
 
 - stage: 'DeployToDev'
-  displayName: 'Build the Project'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  displayName: 'Deploy the Project'
   jobs: 
   - deployment: Deploy
     environment: DEV
